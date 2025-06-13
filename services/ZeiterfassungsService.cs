@@ -79,7 +79,21 @@ namespace Zeiterfassung.services
             return (minuten / 60.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',');
         }
 
-        public async Task ExportiereAlleZuCsvAsync(string pfad)
+        private static string GetOutputCsvPath()
+        {
+            var parentDir = Directory.GetParent(Environment.CurrentDirectory)?.FullName;
+            if (parentDir == null)
+                throw new DirectoryNotFoundException("Parent directory not found.");
+
+            var outputDir = Path.Combine(parentDir, "output");
+            if (!Directory.Exists(outputDir))
+                Directory.CreateDirectory(outputDir);
+
+            var filePath = Path.Combine(outputDir, "Zeitenkonto.csv");
+            return filePath;
+        }
+
+        public async Task ExportiereAlleZuCsvAsync()
         {
             var personen = await _dbContext.Personen.ToListAsync();
             var arbeitszeiten = await _dbContext.Arbeitszeit.ToListAsync();
@@ -89,32 +103,30 @@ namespace Zeiterfassung.services
                 .OrderBy(d => d)
                 .ToList();
 
-            using (var writer = new StreamWriter(pfad, false, System.Text.Encoding.UTF8))
+            using var writer = new StreamWriter(GetOutputCsvPath(), false, System.Text.Encoding.UTF8);
+            await writer.WriteLineAsync("PersNr;Datum;TagesSollzeit;TagesArbeitszeit;TagesSaldo;GesamtSaldo");
+
+            foreach (var person in personen)
             {
-                await writer.WriteLineAsync("Persnr;Datum;TagesSollzeit;TagesArbeitszeit;TagesSaldo;GesamtSaldo");
+                int gesamtSaldo = 0;
 
-                foreach (var person in personen)
+                foreach (var datum in alleDaten)
                 {
-                    int gesamtSaldo = 0;
+                    var sollzeitZeiten = GetSollzeitZeitenFürDatum(datum, person);
+                    int tagesSollzeit = sollzeitZeiten?.FürDatum(datum) ?? 0;
 
-                    foreach (var datum in alleDaten)
-                    {
-                        var sollzeitZeiten = GetSollzeitZeitenFürDatum(datum, person);
-                        int tagesSollzeit = sollzeitZeiten?.FürDatum(datum) ?? 0;
+                    var arbeitszeit = arbeitszeiten.FirstOrDefault(a => a.PersonenId == person.Id && a.Datum == datum);
+                    int arbeitszeitMinuten = arbeitszeit?.Minuten ?? 0;
 
-                        var arbeitszeit = arbeitszeiten.FirstOrDefault(a => a.PersonenId == person.Id && a.Datum == datum);
-                        int arbeitszeitMinuten = arbeitszeit?.Minuten ?? 0;
+                    int tagesSaldo = arbeitszeitMinuten - tagesSollzeit;
+                    gesamtSaldo += tagesSaldo;
 
-                        int tagesSaldo = arbeitszeitMinuten - tagesSollzeit;
-                        gesamtSaldo += tagesSaldo;
+                    string sollzeitStr = FormatIndustrieZeit(tagesSollzeit);
+                    string arbeitszeitStr = FormatIndustrieZeit(arbeitszeitMinuten);
+                    string tagesSaldoStr = FormatIndustrieZeit(tagesSaldo);
+                    string gesamtSaldoStr = FormatIndustrieZeit(gesamtSaldo);
 
-                        string sollzeitStr = FormatIndustrieZeit(tagesSollzeit);
-                        string arbeitszeitStr = FormatIndustrieZeit(arbeitszeitMinuten);
-                        string tagesSaldoStr = FormatIndustrieZeit(tagesSaldo);
-                        string gesamtSaldoStr = FormatIndustrieZeit(gesamtSaldo);
-
-                        await writer.WriteLineAsync($"{person.Personalnummer};{datum:yyyy-MM-dd};{sollzeitStr};{arbeitszeitStr};{tagesSaldoStr};{gesamtSaldoStr}");
-                    }
+                    await writer.WriteLineAsync($"{person.Personalnummer};{datum:yyyy-MM-dd};{sollzeitStr};{arbeitszeitStr};{tagesSaldoStr};{gesamtSaldoStr}");
                 }
             }
         }

@@ -83,6 +83,13 @@ namespace Zeiterfassung.viewmodels
             set { _monatsSaldo = value; OnPropertyChanged(); }
         }
 
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set { _isBusy = value; OnPropertyChanged(); }
+        }
+
         public ICommand LadenCommand { get; }
         public ICommand SpeichernCommand { get; }
         public ICommand ExportierenCommand { get; }
@@ -138,9 +145,22 @@ namespace Zeiterfassung.viewmodels
             _service.SaveArbeitszeit(arbeitszeit);
         }
 
-        private void Exportieren(object obj)
+        private async void Exportieren(object obj)
         {
-            // Export-Logik hier implementieren
+            try
+            {
+                IsBusy = true;
+                await _service.ExportiereAlleZuCsvAsync();
+                System.Windows.MessageBox.Show("Export erfolgreich!", "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Fehler beim Export:\n{ex.Message}", "Export Fehler", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
 
