@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="Zeiterfassung.views.ZeiterfassungsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Zeiterfassung.views"
+             xmlns:viewmodels="clr-namespace:Zeiterfassung.viewmodels" 
+             xmlns:converter="clr-namespace:Zeiterfassung.views.converter"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ZeiterfassungsViewModel}"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <converter:ZeitConverter x:Key="ZeitConverter"/>
+        <converter:ZeitFormatConverter x:Key="ZeitFormatConverter"/>
+    </UserControl.Resources>
+    <StackPanel Margin="20 30 20 20">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Person:"/>
+            <ComboBox Margin="10 0 0 0" 
+                          x:Name="PersonComboBox" 
+                          Width="200" 
+                          ItemsSource="{Binding Personen}"
+                          SelectedItem="{Binding SelectedPerson}"
+                          DisplayMemberPath="Name"/>
+        </StackPanel>
+
+        <StackPanel  Margin="0 20 0 0" Orientation="Horizontal">
+            <Label Content="Datum:"/>
+            <DatePicker Margin="10 0 0 0" x:Name="DatumSelection" SelectedDate="{Binding SelectedDate}" Width="200"/>
+        </StackPanel>
+
+        <StackPanel  Margin="0 20 0 0" Orientation="Horizontal">
+            <Label Content="Arbeitszeit (HH:mm):"/>
+            <TextBox Margin="10 0 0 0" x:Name="ArbeitszeitText" Text="{Binding Arbeitszeit, Converter={StaticResource ZeitFormatConverter}, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
+        </StackPanel>
+
+        <Label Content="Tageswerte" Margin="0 20 0 0"/>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Sollzeit:"/>
+            <Label Margin="10 0 10 0" x:Name="SollzeitText" Content="{Binding Sollzeit, Converter={StaticResource ZeitConverter}}" MaxWidth="90"/>
+            <Label Content="Saldo:"/>
+            <Label Margin="10 0 10 0" x:Name="SaldoText" Content="{Binding Saldo, Converter={StaticResource ZeitConverter}}" MaxWidth="90"/>
+        </StackPanel>
+
+        <Label Content="Monatswerte" Margin="0 20 0 0"/>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Sollzeit:"/>
+            <Label Margin="10 0 10 0" x:Name="MonatsSollzeitText" Content="{Binding MonatsSollzeit, Converter={StaticResource ZeitConverter}}" MaxWidth="90"/>
+            <Label Content="Saldo:"/>
+            <Label Margin="10 0 10 0" x:Name="MonatsSaldoText" Content="{Binding MonatsSaldo, Converter={StaticResource ZeitConverter}}" MaxWidth="90"/>
+        </StackPanel>
+
+        <StackPanel Margin="0 20 0 0"  Orientation="Horizontal" Width="Auto" HorizontalAlignment="Center">
+            <Button Margin="0 0 10 0" x:Name="LadenButton" Content="Laden" Width="70" Command="{Binding LadenCommand}" />
+            <Button Margin="0 0 10 0" x:Name="SpeichernButton" Content="Speichern" Width="70" Command="{Binding SpeichernCommand}" />
+                <Button x:Name="ExportierenButton" Content="Exportieren" Width="70" Command="{Binding ExportierenCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>
