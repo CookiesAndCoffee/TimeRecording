@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.IO;
 using Zeiterfassung.models;
 
 namespace Zeiterfassung.services
@@ -71,6 +72,51 @@ namespace Zeiterfassung.services
         {
             return _dbContext.Arbeitszeit
                 .FirstOrDefault(aw => aw.Datum == datum && aw.PersonenId == person.Id);
+        }
+
+        private static string FormatIndustrieZeit(int minuten)
+        {
+            return (minuten / 60.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',');
+        }
+
+        public async Task ExportiereAlleZuCsvAsync(string pfad)
+        {
+            var personen = await _dbContext.Personen.ToListAsync();
+            var arbeitszeiten = await _dbContext.Arbeitszeit.ToListAsync();
+            var alleDaten = arbeitszeiten.Select(a => a.Datum)
+                .Concat(_dbContext.SollzeitModelleZeiten.Select(sz => sz.GueltigAb))
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+
+            using (var writer = new StreamWriter(pfad, false, System.Text.Encoding.UTF8))
+            {
+                await writer.WriteLineAsync("Persnr;Datum;TagesSollzeit;TagesArbeitszeit;TagesSaldo;GesamtSaldo");
+
+                foreach (var person in personen)
+                {
+                    int gesamtSaldo = 0;
+
+                    foreach (var datum in alleDaten)
+                    {
+                        var sollzeitZeiten = GetSollzeitZeitenFürDatum(datum, person);
+                        int tagesSollzeit = sollzeitZeiten?.FürDatum(datum) ?? 0;
+
+                        var arbeitszeit = arbeitszeiten.FirstOrDefault(a => a.PersonenId == person.Id && a.Datum == datum);
+                        int arbeitszeitMinuten = arbeitszeit?.Minuten ?? 0;
+
+                        int tagesSaldo = arbeitszeitMinuten - tagesSollzeit;
+                        gesamtSaldo += tagesSaldo;
+
+                        string sollzeitStr = FormatIndustrieZeit(tagesSollzeit);
+                        string arbeitszeitStr = FormatIndustrieZeit(arbeitszeitMinuten);
+                        string tagesSaldoStr = FormatIndustrieZeit(tagesSaldo);
+                        string gesamtSaldoStr = FormatIndustrieZeit(gesamtSaldo);
+
+                        await writer.WriteLineAsync($"{person.Personalnummer};{datum:yyyy-MM-dd};{sollzeitStr};{arbeitszeitStr};{tagesSaldoStr};{gesamtSaldoStr}");
+                    }
+                }
+            }
         }
     }
 }
