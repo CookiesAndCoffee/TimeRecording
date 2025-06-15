@@ -1,0 +1,42 @@
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using Zeiterfassung.services;
+using Zeiterfassung.Test.models;
+
+namespace Zeiterfassung.Test.data.service
+{
+    public static class ZeiterfassungsDBContextMock
+    {
+        public static ZeiterfassungsDBContext CreateMockedContext()
+        {
+            // Testdaten erzeugen
+            var personen = PersonTestData.CreateTestData();
+            var arbeitszeiten = ArbeitszeitTestData.CreateTestData(personen);
+
+            // Mock für DbSet<T>
+            var personenSet = CreateMockDbSet(personen);
+            var arbeitszeitenSet = CreateMockDbSet(arbeitszeiten);
+
+            // Mock für ZeiterfassungsDBContext
+            var mockContext = new Mock<ZeiterfassungsDBContext>();
+            mockContext.Setup(c => c.Personen).Returns(personenSet.Object);
+            mockContext.Setup(c => c.Arbeitszeit).Returns(arbeitszeitenSet.Object);
+
+            // Weitere DbSets können nach Bedarf ergänzt werden
+
+            return mockContext.Object;
+        }
+
+        // Hilfsmethode für Mock-DbSet
+        private static Mock<DbSet<T>> CreateMockDbSet<T>(IEnumerable<T> data) where T : class
+        {
+            var queryable = data.AsQueryable();
+            var mockSet = new Mock<DbSet<T>>();
+            mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
+            mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
+            mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
+            mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
+            return mockSet;
+        }
+    }
+}
