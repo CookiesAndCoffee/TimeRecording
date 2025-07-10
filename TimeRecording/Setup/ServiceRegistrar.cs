@@ -18,10 +18,16 @@ namespace TimeRecording.Setup
         public static void RegisterTransients(IServiceCollection services)
         {
             services.AddTransient<MainWindow>();
+            services.AddTransient<MainWindowController>();
             //TimeRecording Content
             services.AddTransient<TimeRecordingView>();
             services.AddTransient<TimeRecordingViewModel>();
             services.AddTransient<TimeRecordingService>();
+            //Person Content
+            services.AddTransient<PersonView>();
+            //TargetTimeModel Content
+            services.AddTransient<TargetTimeModelView>();
+            services.AddTransient<TargetTimeModelViewModel>();
         }
     }
 }

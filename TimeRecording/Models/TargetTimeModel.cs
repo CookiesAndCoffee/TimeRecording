@@ -14,5 +14,10 @@ namespace TimeRecording.Models
         public string Model { get; set; }
 
         public TargetTimeModel() { }
+
+        public override string ToString()
+        {
+            return Model;
+        }
     }
 }

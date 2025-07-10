@@ -64,7 +64,7 @@ namespace TimeRecording.Services
             return balance - GetTargetTimeForMonth(monat, person);
         }
 
-        public void SaveArbeitszeit(WorkingTime workingTime)
+        public void SaveWorkingTime(WorkingTime workingTime)
         {
             _dbContext.WorkingTime.Add(workingTime);
             _dbContext.SaveChanges();
@@ -74,6 +74,28 @@ namespace TimeRecording.Services
         {
             return _dbContext.WorkingTime
                 .FirstOrDefault(aw => aw.Date == date && aw.PersonId == person.Id);
+        }
+
+        public void SaveTargetTimeModel(TargetTimeModel model)
+        {
+            _dbContext.TargetTimeModel.Add(model);
+            _dbContext.SaveChanges();
+        }
+
+        public List<TargetTimeModel> GetTargetTimeModels()
+        {
+            return _dbContext.TargetTimeModel.ToList();
+        }
+
+        public void SaveTargetTimeModelTimes(TargetTimeModelTimes modelTimes)
+        {
+            _dbContext.TargetTimeModelTimes.Add(modelTimes);
+            _dbContext.SaveChanges();
+        }
+
+        public List<TargetTimeModelTimes> GetTargetTimeModelTimes()
+        {
+            return _dbContext.TargetTimeModelTimes.ToList();
         }
 
         private static string GetOutputCsvPath()

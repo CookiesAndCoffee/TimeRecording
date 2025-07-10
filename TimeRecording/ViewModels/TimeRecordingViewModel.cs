@@ -1,17 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using TimeRecording.Models;
 using TimeRecording.Services;
-using TimeRecording.Views;
 
 namespace TimeRecording.ViewModels
 {
-    public class TimeRecordingViewModel : INotifyPropertyChanged
+    public class TimeRecordingViewModel : AbstractViewModel
     {
-        public TimeRecordingView View { get; set; }
-
         public ObservableCollection<Person> Persons { get; } = new();
 
         private TimeRecordingService _service;
@@ -22,9 +17,10 @@ namespace TimeRecording.ViewModels
             get => _selectedPerson;
             set
             {
-                _selectedPerson = value; OnPropertyChanged();
+                _selectedPerson = value;
+                OnPropertyChanged();
                 CommandManager.InvalidateRequerySuggested();
-                Load(null);
+                Load();
             }
         }
 
@@ -37,7 +33,7 @@ namespace TimeRecording.ViewModels
                 _selectedDate = value;
                 OnPropertyChanged();
                 CommandManager.InvalidateRequerySuggested();
-                Load(null);
+                Load();
             }
         }
 
@@ -111,7 +107,7 @@ namespace TimeRecording.ViewModels
                 Persons.Add(person);
         }
 
-        private void Load(object obj)
+        private void Load()
         {
             if (SelectedPerson == null || SelectedDate == default)
                 return;
@@ -127,12 +123,12 @@ namespace TimeRecording.ViewModels
             MonthlyBalance = _service.GetMonthlyBalance(SelectedDate, SelectedPerson);
         }
 
-        private bool ButtonsEnabled(object obj)
+        private bool ButtonsEnabled()
         {
             return SelectedPerson != null && SelectedDate != default;
         }
 
-        private void Save(object obj)
+        private void Save()
         {
             var minuten = 0;
             if (TimeSpan.TryParse(WorkingTime, out var ts))
@@ -143,10 +139,10 @@ namespace TimeRecording.ViewModels
                 PersonId = SelectedPerson.Id,
                 Date = SelectedDate
             };
-            _service.SaveArbeitszeit(arbeitszeit);
+            _service.SaveWorkingTime(arbeitszeit);
         }
 
-        private async void Export(object obj)
+        private async void Export()
         {
             try
             {
@@ -162,32 +158,6 @@ namespace TimeRecording.ViewModels
             {
                 IsBusy = false;
             }
-        }
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    public class RelayCommand : ICommand
-    {
-        private readonly Action<object> _execute;
-        private readonly Func<object, bool> _canExecute;
-
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-        {
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public bool CanExecute(object parameter) => _canExecute == null || _canExecute(parameter);
-        public void Execute(object parameter) => _execute(parameter);
-        public event EventHandler CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
         }
     }
 }

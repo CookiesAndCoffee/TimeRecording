@@ -9,7 +9,6 @@ namespace TimeRecording.Views
         {
             InitializeComponent();
             var viewModel = timeRecordingViewModel;
-            viewModel.View = this;
             DataContext = viewModel;
         }
     }

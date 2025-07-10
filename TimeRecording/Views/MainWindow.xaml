@@ -3,12 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TimeRecording"
+        xmlns:local="clr-namespace:TimeRecording.Views"
+        xmlns:viewmodels="clr-namespace:TimeRecording.ViewModels" 
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Time Recording" Height="400" Width="315"
+        Title="Time Recording" Height="500" Width="600"
         Style="{StaticResource MaterialDesignWindow}">
     <Grid>
-        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Height="80" Background="{DynamicResource MaterialDesign.Brush.Card.Background}">
+            <ListBox x:Name="NavListBox"
+                     ItemsSource="{Binding NavigationItems}"
+                     SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                     SelectionChanged="NavListBox_SelectionChanged"
+                     Style="{StaticResource MaterialDesign3.NavigationBarListBox}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource MaterialDesign3.NavigationBarListBoxItem}">                        
+                        <Setter Property="materialDesign:NavigationBarAssist.SelectedIcon" Value="{Binding SelectedIcon}" />
+                        <Setter Property="materialDesign:NavigationBarAssist.UnselectedIcon" Value="{Binding UnselectedIcon}" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </Grid>
+        <Frame Grid.Row="1" x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>
