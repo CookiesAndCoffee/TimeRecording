@@ -71,7 +71,7 @@
             </Grid.RowDefinitions>
             <TextBox Grid.Column="0" 
                         Grid.Row="0"
-                        Text="{Binding SelectedTargetTimeModel.Model, UpdateSourceTrigger=PropertyChanged}"            
+                        Text="{Binding ChangeModel, UpdateSourceTrigger=PropertyChanged}"            
                         VerticalAlignment="Center"/>
             <Button Grid.Column="1" Margin="10" Content="Save" Width="Auto" Style="{StaticResource MaterialDesignFlatButton}"/>
             <Button Grid.Column="2" Margin="10" Content="Add Times" Width="Auto" Style="{StaticResource MaterialDesignFlatSecondaryButton}"/>
@@ -89,13 +89,76 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Monday" Width="Auto"/>
-                            <GridViewColumn Header="Thuesday" />
-                            <GridViewColumn Header="Wednesday" />
-                            <GridViewColumn Header="Thursday" />
-                            <GridViewColumn Header="Firday" />
-                            <GridViewColumn Header="Saturday" />
-                            <GridViewColumn Header="Sunday" />
+                            <GridViewColumn Header="Monday" Width="Auto">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Monday, UpdateSourceTrigger=PropertyChanged}"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Center"
+                                                     Margin="5 0 0 0"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Thuesday">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Thuesday, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 Margin="5 0 0 0"/>         
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Wednesday">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Wednesday, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 Margin="5 0 0 0"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Thursday">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Thursday, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 Margin="5 0 0 0"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Firday">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Firday, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 Margin="5 0 0 0"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Saturday">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Saturday, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 Margin="5 0 0 0"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Sunday">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Sunday, UpdateSourceTrigger=PropertyChanged}"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Center"
+                                                 Margin="5 0 0 0"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
