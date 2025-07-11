@@ -78,7 +78,16 @@ namespace TimeRecording.Services
 
         public void SaveTargetTimeModel(TargetTimeModel model)
         {
-            _dbContext.TargetTimeModel.Add(model);
+            var existingModel = _dbContext.TargetTimeModel.Find(model.Id);
+            if (existingModel != null)
+            {
+                existingModel.Model = model.Model;
+                _dbContext.TargetTimeModel.Update(existingModel);
+            }
+            else
+            {
+                _dbContext.TargetTimeModel.Add(model);
+            }
             _dbContext.SaveChanges();
         }
 
@@ -89,7 +98,14 @@ namespace TimeRecording.Services
 
         public void SaveTargetTimeModelTimes(TargetTimeModelTimes modelTimes)
         {
-            _dbContext.TargetTimeModelTimes.Add(modelTimes);
+            try
+            {
+                _dbContext.TargetTimeModelTimes.Add(modelTimes);
+            }
+            catch (Exception)
+            {
+                _dbContext.TargetTimeModelTimes.Update(modelTimes);
+            }
             _dbContext.SaveChanges();
         }
 

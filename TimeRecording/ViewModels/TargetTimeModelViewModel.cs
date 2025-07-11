@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using TimeRecording.Models;
 using TimeRecording.Services;
@@ -15,7 +16,8 @@ namespace TimeRecording.ViewModels
             {
                 _targetTimeModel = value;
                 OnPropertyChanged();
-                Load();
+                HasSelectedTargetTimeModel = _targetTimeModel != null ? Visibility.Visible : Visibility.Hidden;
+                HasNotSelectedTargetTimeModel = _targetTimeModel == null ? Visibility.Visible : Visibility.Hidden;
             }
         }
 
@@ -26,6 +28,39 @@ namespace TimeRecording.ViewModels
             set
             {
                 _newModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _changeModel;
+        public string ChangeModel
+        {
+            get => _changeModel;
+            set
+            {
+                _changeModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility _hasSelectedTargetTimeModel = Visibility.Hidden;
+        public Visibility HasSelectedTargetTimeModel
+        {
+            get => _hasSelectedTargetTimeModel;
+            set
+            {
+                _hasSelectedTargetTimeModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility _hasNotSelectedTargetTimeModel = Visibility.Visible;
+        public Visibility HasNotSelectedTargetTimeModel
+        {
+            get => _hasNotSelectedTargetTimeModel;
+            set
+            {
+                _hasNotSelectedTargetTimeModel = value;
                 OnPropertyChanged();
             }
         }
@@ -43,8 +78,8 @@ namespace TimeRecording.ViewModels
             _service = service;
             AddCommand = new RelayCommand(Add, () => !String.IsNullOrWhiteSpace(_newModel));
             AddTimesCommand = new RelayCommand(AddTimes, () => SelectedTargetTimeModel != null);
-            SaveCommand = new RelayCommand(Save, () => !String.IsNullOrWhiteSpace(SelectedTargetTimeModel.Model));
-            Load();
+            SaveCommand = new RelayCommand(Save, () => !String.IsNullOrWhiteSpace(_changeModel));
+            LoadList();
         }
 
         public void Add()
@@ -53,7 +88,7 @@ namespace TimeRecording.ViewModels
                 return;
             var newModel = new TargetTimeModel { Model = _newModel };
             _service.SaveTargetTimeModel(newModel);
-            Load();
+            LoadList();
             NewModel = string.Empty;
         }
 
@@ -78,30 +113,32 @@ namespace TimeRecording.ViewModels
         {
             if (SelectedTargetTimeModel == null)
                 return;
-            _service.SaveTargetTimeModel(SelectedTargetTimeModel);
+            _targetTimeModel.Model = _changeModel;
+            _service.SaveTargetTimeModel(_targetTimeModel);
             foreach (var times in TargetTimeModelTimes)
             {
                 _service.SaveTargetTimeModelTimes(times);
             }
-            Load();
+            LoadSelected();
         }
 
-        public void Load()
+        public void LoadList()
         {
             TargetTimeModels.Clear();
             var models = _service.GetTargetTimeModels();
             foreach (var model in models)
                 TargetTimeModels.Add(model);
+        }
 
-            if (SelectedTargetTimeModel != null)
-            {
-                TargetTimeModelTimes.Clear();
-                var times = _service.GetTargetTimeModelTimes()
-                    .Where(t => t.TargetTimeModelId == SelectedTargetTimeModel.Id)
-                    .ToList();
-                foreach (var time in times)
-                    TargetTimeModelTimes.Add(time);
-            }
+        public void LoadSelected()
+        {
+            TargetTimeModelTimes.Clear();
+            ChangeModel = SelectedTargetTimeModel?.Model ?? string.Empty;
+            var times = _service.GetTargetTimeModelTimes()
+                .Where(t => t.TargetTimeModelId == SelectedTargetTimeModel?.Id)
+                .ToList();
+            foreach (var time in times)
+                TargetTimeModelTimes.Add(time);
         }
     }
 }

@@ -23,8 +23,8 @@ namespace TimeRecording.Setup
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<PersonTargetTimeModel>().HasNoKey();
-            modelBuilder.Entity<TargetTimeModelTimes>().HasNoKey();
+            modelBuilder.Entity<PersonTargetTimeModel>().HasKey(ptm => new { ptm.PersonId, ptm.ValidFrom });
+            modelBuilder.Entity<TargetTimeModelTimes>().HasKey(tmt => new { tmt.TargetTimeModelId, tmt.ValidFrom });
             modelBuilder.Entity<WorkingTime>().HasKey(wt => new { wt.PersonId, wt.Date });
         }
     }
