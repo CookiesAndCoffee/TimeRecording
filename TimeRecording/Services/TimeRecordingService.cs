@@ -76,44 +76,6 @@ namespace TimeRecording.Services
                 .FirstOrDefault(aw => aw.Date == date && aw.PersonId == person.Id);
         }
 
-        public void SaveTargetTimeModel(TargetTimeModel model)
-        {
-            var existingModel = _dbContext.TargetTimeModel.Find(model.Id);
-            if (existingModel != null)
-            {
-                existingModel.Model = model.Model;
-                _dbContext.TargetTimeModel.Update(existingModel);
-            }
-            else
-            {
-                _dbContext.TargetTimeModel.Add(model);
-            }
-            _dbContext.SaveChanges();
-        }
-
-        public List<TargetTimeModel> GetTargetTimeModels()
-        {
-            return _dbContext.TargetTimeModel.ToList();
-        }
-
-        public void SaveTargetTimeModelTimes(TargetTimeModelTimes modelTimes)
-        {
-            try
-            {
-                _dbContext.TargetTimeModelTimes.Add(modelTimes);
-            }
-            catch (Exception)
-            {
-                _dbContext.TargetTimeModelTimes.Update(modelTimes);
-            }
-            _dbContext.SaveChanges();
-        }
-
-        public List<TargetTimeModelTimes> GetTargetTimeModelTimes()
-        {
-            return _dbContext.TargetTimeModelTimes.ToList();
-        }
-
         private static string GetOutputCsvPath()
         {
             var parentDir = Directory.GetParent(Environment.CurrentDirectory)?.FullName;

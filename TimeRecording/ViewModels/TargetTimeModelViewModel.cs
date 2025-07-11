@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using TimeRecording.Models;
-using TimeRecording.Services;
+using TimeRecording.Services.Interfaces;
 
 namespace TimeRecording.ViewModels
 {
@@ -70,15 +70,17 @@ namespace TimeRecording.ViewModels
         public ICommand AddCommand { get; }
         public ICommand AddTimesCommand { get; }
         public ICommand SaveCommand { get; }
+        public ICommand DeleteCommand { get; }
 
-        private TimeRecordingService _service;
+        private ITargetTimeModelService _service;
 
-        public TargetTimeModelViewModel(TimeRecordingService service)
+        public TargetTimeModelViewModel(ITargetTimeModelService service)
         {
             _service = service;
             AddCommand = new RelayCommand(Add, () => !String.IsNullOrWhiteSpace(_newModel));
             AddTimesCommand = new RelayCommand(AddTimes, () => SelectedTargetTimeModel != null);
             SaveCommand = new RelayCommand(Save, () => !String.IsNullOrWhiteSpace(_changeModel));
+            DeleteCommand = new RelayCommand(DeleteSelected, () => SelectedTargetTimeModel != null);
             LoadList();
         }
 
@@ -87,7 +89,7 @@ namespace TimeRecording.ViewModels
             if (String.IsNullOrWhiteSpace(_newModel))
                 return;
             var newModel = new TargetTimeModel { Model = _newModel };
-            _service.SaveTargetTimeModel(newModel);
+            _service.Save(newModel);
             LoadList();
             NewModel = string.Empty;
         }
@@ -114,18 +116,19 @@ namespace TimeRecording.ViewModels
             if (SelectedTargetTimeModel == null)
                 return;
             _targetTimeModel.Model = _changeModel;
-            _service.SaveTargetTimeModel(_targetTimeModel);
+            _service.Save(_targetTimeModel);
             foreach (var times in TargetTimeModelTimes)
             {
                 _service.SaveTargetTimeModelTimes(times);
             }
             LoadSelected();
+            LoadList();
         }
 
         public void LoadList()
         {
             TargetTimeModels.Clear();
-            var models = _service.GetTargetTimeModels();
+            var models = _service.GetAll();
             foreach (var model in models)
                 TargetTimeModels.Add(model);
         }
@@ -139,6 +142,15 @@ namespace TimeRecording.ViewModels
                 .ToList();
             foreach (var time in times)
                 TargetTimeModelTimes.Add(time);
+        }
+
+        public void DeleteSelected()
+        {
+            if (SelectedTargetTimeModel == null)
+                return;
+            _service.Delete(SelectedTargetTimeModel);
+            LoadList();
+            SelectedTargetTimeModel = null;
         }
     }
 }

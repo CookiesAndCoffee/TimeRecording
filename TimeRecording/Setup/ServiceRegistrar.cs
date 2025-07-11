@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using TimeRecording.Services;
+using TimeRecording.Services.Interfaces;
 using TimeRecording.ViewModels;
 using TimeRecording.Views;
 
@@ -25,9 +26,12 @@ namespace TimeRecording.Setup
             services.AddTransient<TimeRecordingService>();
             //Person Content
             services.AddTransient<PersonView>();
+            services.AddTransient<PersonViewModel>();
+            services.AddTransient<IPersonService, PersonService>();
             //TargetTimeModel Content
             services.AddTransient<TargetTimeModelView>();
             services.AddTransient<TargetTimeModelViewModel>();
+            services.AddTransient<ITargetTimeModelService, TargetTimeModelService>();
         }
     }
 }
