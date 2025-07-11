@@ -5,6 +5,9 @@ using TimeRecording.Setup;
 
 namespace TimeRecording.Services
 {
+    /// <summary>
+    /// Provides basic CRUD operations for entities in the TimeRecording database.
+    /// </summary>
     public abstract class BaseService<E> : IService<E> where E : class
     {
         protected TimeRecordingDBContext _dbContext;

@@ -1,5 +1,8 @@
 ﻿namespace TimeRecording.Services.Interfaces
 {
+    /// <summary>
+    /// Provide basic CRUD operations for an entity.
+    /// </summary>
     public interface IService<E> where E : class
     {
         /// <summary>
