@@ -3,9 +3,15 @@
 namespace TimeRecording.Services.Interfaces
 {
     public interface ITargetTimeModelService : IService<TargetTimeModel>
-    {   
-        void SaveTargetTimeModelTimes(TargetTimeModelTimes modelTimes);
+    {
+        /// <summary>
+        /// Saves the target time model times for a specific target time model.
+        /// </summary>
+        void SaveTargetTimeModelTimes(TargetTimeModel model, List<TargetTimeModelTimes> modelTimes);
 
-        List<TargetTimeModelTimes> GetTargetTimeModelTimes();
+        /// <summary>
+        /// Gets all target time model times for a specific target time model.
+        /// </summary>
+        List<TargetTimeModelTimes> GetTargetTimeModelTimes(TargetTimeModel model);
     }
 }

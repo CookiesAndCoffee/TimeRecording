@@ -16,6 +16,16 @@ namespace TimeRecording.Services
             return _dbContext.Person;
         }
 
+        public void SavePersonTargetTimeModel(Person person, List<PersonTargetTimeModel> models)
+        {
+            SavesReferences<PersonTargetTimeModel>(person, models);
+        }
+
+        public List<PersonTargetTimeModel> GetPersonTargetTimeModels(Person person)
+        {
+            return _dbContext.PersonTargetTimeModel.Where<PersonTargetTimeModel>(pttm => pttm.PersonId == person.Id).ToList();
+        }
+
         /// <summary>
         /// Delete the entity and every reference
         /// </summary>

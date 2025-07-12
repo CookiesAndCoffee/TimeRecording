@@ -11,22 +11,14 @@ namespace TimeRecording.Services
         {
         }
 
-        public void SaveTargetTimeModelTimes(TargetTimeModelTimes modelTimes)
+        public void SaveTargetTimeModelTimes(TargetTimeModel model, List<TargetTimeModelTimes> modelTimes)
         {
-            try
-            {
-                _dbContext.TargetTimeModelTimes.Add(modelTimes);
-            }
-            catch (DbUpdateException)
-            {
-                _dbContext.TargetTimeModelTimes.Update(modelTimes);
-            }
-            _dbContext.SaveChanges();
+            SavesReferences<TargetTimeModelTimes>(model, modelTimes);
         }
 
-        public List<TargetTimeModelTimes> GetTargetTimeModelTimes()
+        public List<TargetTimeModelTimes> GetTargetTimeModelTimes(TargetTimeModel model)
         {
-            return _dbContext.TargetTimeModelTimes.ToList();
+            return _dbContext.TargetTimeModelTimes.Where<TargetTimeModelTimes>(ttmt => ttmt.TargetTimeModelId == model.Id).ToList();
         }
 
         protected override DbSet<TargetTimeModel> GetSet()

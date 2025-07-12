@@ -6,21 +6,8 @@ using TimeRecording.Services.Interfaces;
 
 namespace TimeRecording.ViewModels
 {
-    public class TargetTimeModelViewModel : AbstractViewModel
+    public class TargetTimeModelViewModel : AbstractViewModel<TargetTimeModel, ITargetTimeModelService>
     {
-        private TargetTimeModel _targetTimeModel;
-        public TargetTimeModel SelectedTargetTimeModel
-        {
-            get => _targetTimeModel;
-            set
-            {
-                _targetTimeModel = value;
-                OnPropertyChanged();
-                HasSelectedTargetTimeModel = _targetTimeModel != null ? Visibility.Visible : Visibility.Hidden;
-                HasNotSelectedTargetTimeModel = _targetTimeModel == null ? Visibility.Visible : Visibility.Hidden;
-            }
-        }
-
         private string _newModel;
         public string NewModel
         {
@@ -65,23 +52,19 @@ namespace TimeRecording.ViewModels
             }
         }
 
-        public ObservableCollection<TargetTimeModel> TargetTimeModels { get; } = new();
         public ObservableCollection<TargetTimeModelTimes> TargetTimeModelTimes { get; } = new();
         public ICommand AddCommand { get; }
         public ICommand AddTimesCommand { get; }
-        public ICommand SaveCommand { get; }
-        public ICommand DeleteCommand { get; }
 
-        private ITargetTimeModelService _service;
-
-        public TargetTimeModelViewModel(ITargetTimeModelService service)
+        public TargetTimeModelViewModel(ITargetTimeModelService service) : base(service)
         {
-            _service = service;
             AddCommand = new RelayCommand(Add, () => !String.IsNullOrWhiteSpace(_newModel));
-            AddTimesCommand = new RelayCommand(AddTimes, () => SelectedTargetTimeModel != null);
-            SaveCommand = new RelayCommand(Save, () => !String.IsNullOrWhiteSpace(_changeModel));
-            DeleteCommand = new RelayCommand(DeleteSelected, () => SelectedTargetTimeModel != null);
-            LoadList();
+            AddTimesCommand = new RelayCommand(AddTimes, () => SelectedEntity != null);
+        }
+
+        protected override bool CanSave()
+        {
+            return !String.IsNullOrWhiteSpace(_changeModel);
         }
 
         public void Add()
@@ -90,7 +73,7 @@ namespace TimeRecording.ViewModels
                 return;
             var newModel = new TargetTimeModel { Model = _newModel };
             _service.Save(newModel);
-            LoadList();
+            Load();
             NewModel = string.Empty;
         }
 
@@ -98,8 +81,7 @@ namespace TimeRecording.ViewModels
         {
             TargetTimeModelTimes.Add(new TargetTimeModelTimes
             {
-                TargetTimeModel = SelectedTargetTimeModel,
-                TargetTimeModelId = SelectedTargetTimeModel.Id,
+                TargetTimeModel = SelectedEntity,
                 ValidFrom = DateTime.Now,
                 Monday = 0,
                 Tuesday = 0,
@@ -111,46 +93,24 @@ namespace TimeRecording.ViewModels
             });
         }
 
-        public void Save()
+        protected override void PreSave()
         {
-            if (SelectedTargetTimeModel == null)
-                return;
-            _targetTimeModel.Model = _changeModel;
-            _service.Save(_targetTimeModel);
-            foreach (var times in TargetTimeModelTimes)
-            {
-                _service.SaveTargetTimeModelTimes(times);
-            }
-            LoadSelected();
-            LoadList();
+            _selectedEntity.Model = _changeModel;
         }
 
-        public void LoadList()
+        protected override void AfterSave()
         {
-            TargetTimeModels.Clear();
-            var models = _service.GetAll();
-            foreach (var model in models)
-                TargetTimeModels.Add(model);
+            _service.SaveTargetTimeModelTimes(SelectedEntity, TargetTimeModelTimes.ToList());
         }
 
         public void LoadSelected()
         {
+            if (_selectedEntity == null) return;
             TargetTimeModelTimes.Clear();
-            ChangeModel = SelectedTargetTimeModel?.Model ?? string.Empty;
-            var times = _service.GetTargetTimeModelTimes()
-                .Where(t => t.TargetTimeModelId == SelectedTargetTimeModel?.Id)
-                .ToList();
+            ChangeModel = _selectedEntity?.Model ?? string.Empty;
+            var times = _service.GetTargetTimeModelTimes(_selectedEntity);
             foreach (var time in times)
                 TargetTimeModelTimes.Add(time);
-        }
-
-        public void DeleteSelected()
-        {
-            if (SelectedTargetTimeModel == null)
-                return;
-            _service.Delete(SelectedTargetTimeModel);
-            LoadList();
-            SelectedTargetTimeModel = null;
         }
     }
 }

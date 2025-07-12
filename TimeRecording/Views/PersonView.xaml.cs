@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+using TimeRecording.ViewModels;
 
 namespace TimeRecording.Views
 {
@@ -20,9 +8,23 @@ namespace TimeRecording.Views
     /// </summary>
     public partial class PersonView : UserControl
     {
-        public PersonView()
+        private PersonViewModel _viewModel;
+
+        public PersonView(PersonViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = viewModel;
+        }
+
+        private void PersonList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _viewModel.LoadSelected();
+        }
+
+        private void PersonView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            _viewModel.LoadTargetTimeModels();
         }
     }
 }

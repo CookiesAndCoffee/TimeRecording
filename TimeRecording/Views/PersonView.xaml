@@ -4,10 +4,136 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TimeRecording.Views"
-             xmlns:viewmodels="clr-namespace:TimeRecording.ViewModels" 
+             xmlns:layout="clr-namespace:TimeRecording.Views.Layout"
+             xmlns:viewmodels="clr-namespace:TimeRecording.ViewModels"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
+             Loaded="PersonView_Loaded"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+    <UserControl.Resources>
+        <Style x:Key="InputBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFilledTextBox}">
+            <Setter Property="Margin" Value="10 0 10 0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
+    </UserControl.Resources>
+    
+    <layout:SplitContentControl>
+        <layout:SplitContentControl.LeftContent>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button Grid.Row="0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="Add Person"
+                        Margin="10"
+                        Command="{Binding AddCommand}"/>
+                <Rectangle Grid.Row="1"
+                           Style="{StaticResource HorizontalSeparator}" />
+                <ScrollViewer Grid.Row="2"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto">
+                    <ListBox ItemsSource="{Binding EntityList, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedItem="{Binding SelectedEntity, UpdateSourceTrigger=PropertyChanged}"  
+                          SelectionChanged="PersonList_SelectionChanged"
+                          VerticalAlignment="Stretch"
+                          HorizontalAlignment="Stretch"/>
+                </ScrollViewer>
+            </Grid>
+        </layout:SplitContentControl.LeftContent>
+        <layout:SplitContentControl.RightContent>            
+            <Grid Visibility="{Binding HasSelectedEntity, Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3">
+                    <Button Content="Save"
+                            Margin="10"
+                            Style="{StaticResource MaterialDesignRaisedSecondaryButton}"
+                            Command="{Binding SaveCommand}"/>
+                    <Button Content="Add Model"
+                            Margin="10"
+                            Style="{StaticResource MaterialDesignRaisedSecondaryButton}"
+                            Command="{Binding AddModelCommand}"/>
+                    <Button Content="Delete"
+                            Margin="10"
+                            Style="{StaticResource MaterialDesignOutlinedSecondaryButton}"
+                            Command="{Binding DeleteCommand}"/>
+                </StackPanel>                
+                <TextBox Grid.Row="1"
+                         Grid.Column="0"
+                         materialDesign:HintAssist.Hint="First Name"                         
+                         Style="{StaticResource InputBox}"
+                         Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         materialDesign:HintAssist.Hint="Last Name"
+                         Style="{StaticResource InputBox}"
+                         Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="2"
+                         materialDesign:HintAssist.Hint="Personnel Number"
+                         Style="{StaticResource InputBox}"
+                         Text="{Binding PersonNo, UpdateSourceTrigger=PropertyChanged}"/>
+                <ScrollViewer Grid.Row="2"
+                              Grid.Column="0"
+                              Grid.ColumnSpan="3"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto">
+                    <ListView ItemsSource="{Binding PersonTargetTimeModels, UpdateSourceTrigger=PropertyChanged}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Model"
+                                                DisplayMemberBinding="{Binding Model, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding TargetTimeModels}"
+                                                      SelectedItem="{Binding SelectedPerson}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Valid from"
+                                                Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding ValidFrom, UpdateSourceTrigger=PropertyChanged}"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                        Margin="5 0 0 0"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Style="{StaticResource MaterialDesignIconButton}">
+                                                <materialDesign:PackIcon Kind="Delete" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </ScrollViewer>
+            </Grid>
+        </layout:SplitContentControl.RightContent>
+    </layout:SplitContentControl>
 </UserControl>

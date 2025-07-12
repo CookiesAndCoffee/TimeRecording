@@ -32,15 +32,43 @@ namespace TimeRecording.Services
 
         public void Save(E entity)
         {
+            Save<E>(entity, GetSet());
+        }
+
+        private void Save<T>(T entity, DbSet<T> set) where T : class
+        {
+            // I know this should be done another way to fully rollback every change on failure
+            // especially when saving references, but this is the fastest way and currently good enough.
             try
             {
-                GetSet().Add(entity);
+                set.Add(entity);
                 _dbContext.SaveChanges();
             }
             catch (DbUpdateException)
             {
-                GetSet().Update(entity);
+                set.Update(entity);
                 _dbContext.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        ///  Saves all references to the given entity.         
+        /// </summary>
+        protected void SavesReferences<T>(E entity, List<T> references) where T : class
+        {
+            if (entity is Entity identifiable && identifiable.Id > 0)
+            {
+                var referenceService = _dbContext.Set<T>();
+                var foreignKey = identifiable.GetType().Name + "Id";
+                foreach (var reference in references)
+                {
+                    var propertyInfo = reference.GetType().GetProperty(foreignKey);
+                    if (propertyInfo != null && propertyInfo.CanWrite)
+                    {
+                        propertyInfo.SetValue(reference, identifiable.Id);
+                    }
+                    Save<T>(reference, referenceService);
+                }
             }
         }
 

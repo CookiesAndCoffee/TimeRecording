@@ -22,5 +22,10 @@ namespace TimeRecording.Models
         public string LastName { get; set; }
 
         public Person() { }
+
+        public override string ToString()
+        {
+            return $"{FirstName} {LastName} ({PersonnelNumber})";
+        }
     }
 }

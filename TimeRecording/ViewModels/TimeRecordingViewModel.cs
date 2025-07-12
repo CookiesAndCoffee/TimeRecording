@@ -1,11 +1,13 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using TimeRecording.Models;
 using TimeRecording.Services;
 
 namespace TimeRecording.ViewModels
 {
-    public class TimeRecordingViewModel : AbstractViewModel
+    public class TimeRecordingViewModel
     {
         public ObservableCollection<Person> Persons { get; } = new();
 
@@ -159,5 +161,9 @@ namespace TimeRecording.ViewModels
                 IsBusy = false;
             }
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
