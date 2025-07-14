@@ -1,18 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using TimeRecording.Models;
-using TimeRecording.Services;
+using TimeRecording.Services.Interfaces;
 
 namespace TimeRecording.ViewModels
 {
-    public class TimeRecordingViewModel
+    public class TimeRecordingViewModel : AbstractViewModel<WorkingTime, IWorkingTimeService>
     {
-        public ObservableCollection<Person> Persons { get; } = new();
-
-        private TimeRecordingService _service;
-
         private Person _selectedPerson;
         public Person SelectedPerson
         {
@@ -81,89 +75,52 @@ namespace TimeRecording.ViewModels
             set { _monthlyBalance = value; OnPropertyChanged(); }
         }
 
-        private bool _isBusy;
-        public bool IsBusy
+        public ObservableCollection<Person> Persons { get; } = new();
+
+        private IPersonService _personService;
+
+        public TimeRecordingViewModel(IWorkingTimeService service, IPersonService personService) : base(service)
         {
-            get => _isBusy;
-            set { _isBusy = value; OnPropertyChanged(); }
+            _personService = personService;
+            LoadPersons();
         }
 
-        public ICommand LoadingCommand { get; }
-        public ICommand SavingCommand { get; }
-        public ICommand ExportingCommand { get; }
-
-        public TimeRecordingViewModel(TimeRecordingService service)
+        protected override bool CanSave()
         {
-            _service = service;
-            LoadingCommand = new RelayCommand(Load, ButtonsEnabled);
-            SavingCommand = new RelayCommand(Save, ButtonsEnabled);
-            ExportingCommand = new RelayCommand(Export, ButtonsEnabled);
-            LoadPersons();
+            return SelectedDate != default && !String.IsNullOrWhiteSpace(WorkingTime);
         }
 
         public void LoadPersons()
         {
-            Persons.Clear();
-            var persons = _service.GetAllPersons();
-            foreach (var person in persons)
-                Persons.Add(person);
+            AddToCollection(_personService, Persons);
         }
 
-        private void Load()
+        protected override void Load()
         {
             if (SelectedPerson == null || SelectedDate == default)
                 return;
-            var sollzeitZeiten = _service.GetTargetTimeModelTimesForDate(SelectedDate, SelectedPerson);
+
+            var sollzeitZeiten = _personService.GetTargetTimeModelTimesForDate(SelectedPerson, SelectedDate);
             TargetTime = sollzeitZeiten == null ? 0 : sollzeitZeiten.ForDate(SelectedDate);
 
-            var saldo = _service.GetWorkingTime(SelectedDate, SelectedPerson)?.Minutes ?? 0;
+            SelectedEntity = _service.GetWorkingTimeForDate(SelectedPerson, SelectedDate) ?? new WorkingTime();
+            var saldo = SelectedEntity?.Minutes ?? 0;
             Balance = saldo - TargetTime;
             WorkingTime = TimeSpan.FromMinutes(saldo).ToString(@"hh\:mm");
 
-            MonthlyTargetTime = _service.GetTargetTimeForMonth(SelectedDate, SelectedPerson);
+            MonthlyTargetTime = _personService.GetTargetTimeForMonth(SelectedPerson, SelectedDate);
 
-            MonthlyBalance = _service.GetMonthlyBalance(SelectedDate, SelectedPerson);
+            MonthlyBalance = _personService.GetMonthlyBalance(SelectedPerson, SelectedDate);
         }
 
-        private bool ButtonsEnabled()
-        {
-            return SelectedPerson != null && SelectedDate != default;
-        }
-
-        private void Save()
+        protected override void PreSave()
         {
             var minuten = 0;
             if (TimeSpan.TryParse(WorkingTime, out var ts))
                 minuten = (int)ts.TotalMinutes;
-            var arbeitszeit = new WorkingTime
-            {
-                Minutes = minuten,
-                PersonId = SelectedPerson.Id,
-                Date = SelectedDate
-            };
-            _service.SaveWorkingTime(arbeitszeit);
+            SelectedEntity.Minutes = minuten;
+            SelectedEntity.PersonId = SelectedPerson.Id;
+            SelectedEntity.Date = SelectedDate;
         }
-
-        private async void Export()
-        {
-            try
-            {
-                IsBusy = true;
-                await _service.ExportiereAlleZuCsvAsync();
-                System.Windows.MessageBox.Show("Export erfolgreich!", "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"Fehler beim Export:\n{ex.Message}", "Export Fehler", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

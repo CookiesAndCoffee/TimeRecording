@@ -45,6 +45,7 @@ namespace TimeRecording.ViewModels
 
         public ICommand AddCommand { get; }
         public ICommand AddModelCommand { get; }
+        public ICommand DeletePersonTargetTimeModelCommand { get; }
 
         private readonly ITargetTimeModelService _timeModelService;
 
@@ -53,6 +54,7 @@ namespace TimeRecording.ViewModels
             _timeModelService = timeModelService;
             AddCommand = new RelayCommand(AddPerson);
             AddModelCommand = new RelayCommand(AddModel, () => _selectedEntity != null);
+            DeletePersonTargetTimeModelCommand = new RelayCommand(DeletePersonTargetTimeModel);
         }
 
         private void AddPerson()
@@ -81,6 +83,12 @@ namespace TimeRecording.ViewModels
                 TargetTimeModel = TargetTimeModels.FirstOrDefault(new TargetTimeModel() { Model = "Create Model First" }),
                 ValidFrom = DateTime.Now
             });
+        }
+
+        private void DeletePersonTargetTimeModel(Object obj)
+        {
+            if (obj is PersonTargetTimeModel item)
+                PersonTargetTimeModels.Remove(item);
         }
 
         protected override bool CanSave()

@@ -25,5 +25,12 @@ namespace TimeRecording.Models
         public TargetTimeModel TargetTimeModel { get; set; }
 
         public PersonTargetTimeModel() { }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is PersonTargetTimeModel model)
+                return PersonId == model.PersonId && ValidFrom.Equals(model.ValidFrom);
+            return false;
+        }
     }
 }

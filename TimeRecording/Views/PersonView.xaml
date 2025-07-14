@@ -100,12 +100,11 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Model"
-                                                DisplayMemberBinding="{Binding Model, UpdateSourceTrigger=PropertyChanged}"
-                                                Width="Auto">
+                                                Width="200">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ComboBox ItemsSource="{Binding TargetTimeModels}"
-                                                      SelectedItem="{Binding SelectedPerson}"/>
+                                            <ComboBox ItemsSource="{Binding DataContext.TargetTimeModels, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      SelectedItem="{Binding TargetTimeModel}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -120,12 +119,20 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Width="Auto">
+                                <GridViewColumn>
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Style="{StaticResource MaterialDesignIconButton}">
-                                                <materialDesign:PackIcon Kind="Delete" />
-                                            </Button>
+                                            <DockPanel LastChildFill="True">
+                                                <Button Style="{StaticResource MaterialDesignIconButton}" 
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        Command="{Binding DataContext.DeletePersonTargetTimeModelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Height="24"
+                                                        Width="24">
+                                                    <materialDesign:PackIcon Kind="Delete" />
+                                                </Button>
+                                            </DockPanel>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

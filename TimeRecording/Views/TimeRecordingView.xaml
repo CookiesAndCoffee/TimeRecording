@@ -14,58 +14,78 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>    
     <Grid HorizontalAlignment="Center">
-        <materialDesign:Card Width="auto" Margin="20 30 20 20">
-            <StackPanel Margin="10">
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Person:"/>
-                    <ComboBox Margin="10 0 0 0" 
-                              x:Name="PersonComboBox" 
-                              Width="190" 
-                              ItemsSource="{Binding Person}"
-                              SelectedItem="{Binding SelectedPerson}"
-                              DisplayMemberPath="Name"/>
-                </StackPanel>
+        <materialDesign:Card Width="Auto" Height="Auto" MaxHeight="370" Margin="20 30 20 20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Label Content="Person:" Grid.Row="0" Grid.Column="0" Margin="10" />
+                <ComboBox Margin="10" 
+                          Grid.Row="0" 
+                          Grid.Column="1"
+                          Width="200" 
+                          ItemsSource="{Binding Persons}"
+                          SelectedItem="{Binding SelectedPerson}"/>
+                <Label Content="Date:" Grid.Row="1" Grid.Column="0" Margin="10"/>
+                <DatePicker Margin="10"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            SelectedDate="{Binding SelectedDate}" 
+                            Width="200"/>
+                <Label Content="Working Time:" Grid.Row="2" Grid.Column="0" Margin="10"/>
+                <materialDesign:TimePicker Margin="10"
+                                           Is24Hours="True"
+                                           Grid.Row="2"
+                                           Grid.Column="1"
+                                           Text="{Binding WorkingTime, UpdateSourceTrigger=PropertyChanged}"/>
+                <Rectangle Grid.Column="0"
+                           Grid.Row="3" 
+                           Grid.ColumnSpan="2"
+                           Style="{StaticResource HorizontalSeparator}" />
+                <StackPanel Margin="10" Grid.Row="4" 
+                            Grid.Column="0" 
+                            Grid.ColumnSpan="2" >
+                    <Label Content="Target Time for the Day"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Target Time:"/>
+                        <Label Margin="10 0 10 0" Content="{Binding TargetTime, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
+                        <Label Content="Balance:"/>
+                        <Label Margin="10 0 10 0" Content="{Binding Balance, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
+                    </StackPanel>
 
-                <StackPanel  Margin="0 20 0 0" Orientation="Horizontal">
-                    <Label Content="Date:"/>
-                    <DatePicker Margin="10 0 0 0" x:Name="DateSelection" SelectedDate="{Binding SelectedDate}" Width="200"/>
+                    <Label Content="Target Time for the Month" Margin="0 20 0 0"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Target Time:"/>
+                        <Label Margin="10 0 10 0" Content="{Binding MonthlyTargetTime, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
+                        <Label Content="Balance:"/>
+                        <Label Margin="10 0 10 0" Content="{Binding MonthlyBalance, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
+                    </StackPanel>
                 </StackPanel>
-
-                <StackPanel  Margin="0 20 0 0" Orientation="Horizontal">
-                    <Label Content="Working Time (HH:mm):"/>
-                    <TextBox Margin="10 0 0 0" x:Name="WorkingTimeText" Text="{Binding WorkingTime, Converter={StaticResource TimeFormatConverter}, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
-                </StackPanel>
-
-                <Label Content="Target Time for the Day" Margin="0 20 0 0"/>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Target Time:"/>
-                    <Label Margin="10 0 10 0" x:Name="DayTargetTimeText" Content="{Binding TargetTime, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
-                    <Label Content="Balance:"/>
-                    <Label Margin="10 0 10 0" x:Name="DayBalanceText" Content="{Binding Balance, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
-                </StackPanel>
-
-                <Label Content="Target Time for the Month" Margin="0 20 0 0"/>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Target Time:"/>
-                    <Label Margin="10 0 10 0" x:Name="MonthTargetTimeText" Content="{Binding MonthlyTargetTime, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
-                    <Label Content="Balance:"/>
-                    <Label Margin="10 0 10 0" x:Name="MonthBalanceText" Content="{Binding MonthlyBalance, Converter={StaticResource TimeConverter}}" MaxWidth="90"/>
-                </StackPanel>
-
-                <StackPanel Margin="0 20 0 0"  Orientation="Horizontal" Width="Auto" HorizontalAlignment="Center">
-                    <Button Margin="0 0 10 0" x:Name="LoadButton" Content="Load" Width="70" Command="{Binding LoadCommand}" />
-                    <Button Margin="0 0 10 0" x:Name="SaveButton" Content="Save" Width="70" Command="{Binding SavingCommand}" />
-                    <Button x:Name="ExportButton" Content="Export" Width="80" Command="{Binding ExportingCommand}" />
-                </StackPanel>
-            </StackPanel>
+                <Rectangle Grid.Column="0"
+                           Grid.Row="5" 
+                           Grid.ColumnSpan="2"
+                           Style="{StaticResource HorizontalSeparator}" />
+                <DockPanel LastChildFill="True" 
+                           Margin="10"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Grid.Row="6"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom">
+                    <Button Content="Save" Width="Auto" Command="{Binding SaveCommand}" />
+                </DockPanel>
+            </Grid>          
         </materialDesign:Card>
-        <Grid x:Name="LoadingOverlay"
-            Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
-            Background="#80000000"
-            Panel.ZIndex="100">
-            <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
-                <ProgressBar IsIndeterminate="True" Width="80" Height="10"/>
-            </Viewbox>
-        </Grid>
     </Grid>    
 </UserControl>

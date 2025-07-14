@@ -23,7 +23,7 @@ namespace TimeRecording.Setup
             //TimeRecording Content
             services.AddTransient<TimeRecordingView>();
             services.AddTransient<TimeRecordingViewModel>();
-            services.AddTransient<TimeRecordingService>();
+            services.AddTransient<IWorkingTimeService, WorkingTimeService>();
             //Person Content
             services.AddTransient<PersonView>();
             services.AddTransient<PersonViewModel>();

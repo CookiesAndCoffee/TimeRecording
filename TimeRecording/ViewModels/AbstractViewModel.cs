@@ -47,12 +47,19 @@ namespace TimeRecording.ViewModels
 
         abstract protected bool CanSave();
 
-        protected void Load()
+        protected abstract void PreSave();
+
+        protected void AddToCollection<T>(IService<T> service, ObservableCollection<T> collection) where T : class
         {
-            EntityList.Clear();
-            var items = _service.GetAll();
+            collection.Clear();
+            var items = service.GetAll();
             foreach (var item in items)
-                EntityList.Add(item);
+                collection.Add(item);
+        }
+
+        protected virtual void Load()
+        {
+            AddToCollection(_service, EntityList);
         }
 
         protected void Save()
@@ -63,10 +70,6 @@ namespace TimeRecording.ViewModels
             _service.Save(_selectedEntity);
             AfterSave();
             Load();
-        }
-
-        protected virtual void PreSave()
-        {
         }
 
         protected virtual void AfterSave()
